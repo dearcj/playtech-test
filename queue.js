@@ -18,25 +18,33 @@ module.exports = class AsyncQueue extends EventEmitter {
     }
 
     setInterval(value) {
-        clearTimeout(this.timeout);
-        this.interval = value;
+        if (typeof(value) === 'number') {
+            clearTimeout(this.timeout);
+            this.interval = value;
 
-        if (this.started) {
-            this.updateTimeouts();
+            if (this.started) {
+                this.updateTimeouts();
+            }
+        } else {
+            throw new Error('interval should be number');
         }
     }
 
     dequeue() {
+        this.updateTimeouts();
+        this.lastTick = Date.now();
+
         let item = this.items.shift();
         if (item) {
             this.emit("dequeued", item);
-            this.updateTimeouts();
-            this.lastTick = Date.now();
         }
     }
 
     updateTimeouts(timeOffset) {
-        this.timeout = setTimeout(this.dequeue.bind(this), timeOffset ? this.interval - timeOffset - MACHINE_DEPENDENT_FIX: this.interval - MACHINE_DEPENDENT_FIX);
+        this.timeout = setTimeout(this.dequeue.bind(this),
+            timeOffset ?
+                this.interval - timeOffset - MACHINE_DEPENDENT_FIX:
+                this.interval - MACHINE_DEPENDENT_FIX);
     }
 
     start() {
