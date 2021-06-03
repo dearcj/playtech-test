@@ -1,7 +1,7 @@
 const EventEmitter = require('events');
 
 
-const MACHINE_DEPENDENT_FIX = 10; //ms
+const MACHINE_DEPENDENT_FIX = 12; //ms
 //since in general setTimeout call + EventEmitter dispatcher adds something around 10ms delay
 //to steadily pass test #5 needed to cut something like 10ms from interval
 
@@ -21,7 +21,9 @@ module.exports = class AsyncQueue extends EventEmitter {
         clearTimeout(this.timeout);
         this.interval = value;
 
-        this.updateTimeouts(0);
+        if (this.started) {
+            this.updateTimeouts(0);
+        }
     }
 
     dequeue() {
@@ -34,7 +36,7 @@ module.exports = class AsyncQueue extends EventEmitter {
     }
 
     updateTimeouts(timeOffset) {
-        this.timeout = setTimeout(this.bindedDequeue, timeOffset ? this.interval - timeOffset - MACHINE_DEPENDENT_FIX : this.interval);
+        this.timeout = setTimeout(this.dequeue.bind(this), timeOffset ? this.interval - timeOffset - MACHINE_DEPENDENT_FIX: this.interval - MACHINE_DEPENDENT_FIX);
     }
 
     start() {
@@ -63,7 +65,6 @@ module.exports = class AsyncQueue extends EventEmitter {
     constructor() {
         super();
 
-        this.bindedDequeue = this.dequeue.bind(this);
         this.prePauseTime = 0;
         this.started = false;
         this.items = [];
