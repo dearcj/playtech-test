@@ -59,7 +59,7 @@ module.exports = class AsyncQueue extends EventEmitter {
     }
 
     peek() {
-        return this.items[0];
+        return this.items.length > 0 ? this.items[0] : null;
     }
 
     constructor() {
