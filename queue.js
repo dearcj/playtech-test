@@ -22,7 +22,7 @@ module.exports = class AsyncQueue extends EventEmitter {
         this.interval = value;
 
         if (this.started) {
-            this.updateTimeouts(0);
+            this.updateTimeouts();
         }
     }
 
