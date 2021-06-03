@@ -75,6 +75,11 @@ describe('async_queue', () => {
         var onDequeueSpy = sinon.spy();
         queue.on('dequeued', onDequeueSpy);
 
+        let time = Date.now();
+        queue.on('dequeued', ()=>{
+            console.log("passed", Date.now() - time)
+        });
+
         setTimeout(() => {
             onDequeueSpy.calledOnce.should.be.true;
             onDequeueSpy.firstCall.args[0].should.eql(1);
@@ -147,6 +152,7 @@ describe('async_queue', () => {
         var onDequeueSpy = sinon.spy();
         var onEnqueueSpy = sinon.spy();
         queue.on('dequeued', onDequeueSpy);
+
 
         queue.start();
 
